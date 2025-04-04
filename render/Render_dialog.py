@@ -47,12 +47,18 @@ class RenderDialog(QtWidgets.QDialog, FORM_CLASS):
 
     
     def remplir_menu_raster(self):
-        """Remplit la combo box avec les couches raster du projet"""
+        """Remplit les combo box avec les couches raster du projet"""
         self.menu_raster.clear()
+        self.PIR.clear()
+        self.Rouge.clear()
+
         couches_raster = [
             layer for layer in QgsProject.instance().mapLayers().values()
             if isinstance(layer, QgsRasterLayer)
         ]
+
         for couche in couches_raster:
-            self.menu_raster.addItem(couche.name(), couche.id())  # ajoute le nom et stocke l'ID
+            self.menu_raster.addItem(couche.name(), couche.id())
+            self.PIR.addItem(couche.name(), couche.id())
+            self.Rouge.addItem(couche.name(), couche.id())
 

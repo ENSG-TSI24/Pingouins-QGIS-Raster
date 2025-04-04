@@ -30,7 +30,8 @@ from .resources import *
 # Import the code for the dialog
 from .Render_dialog import RenderDialog
 import os.path
-
+from qgis.core import QgsProject, QgsRasterLayer
+import numpy as np
 
 class Render:
     """QGIS Plugin Implementation."""
@@ -81,7 +82,6 @@ class Render:
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('Render', message)
-
 
     def add_action(
         self,
@@ -183,18 +183,120 @@ class Render:
     def run(self):
         """Run method that performs all the real work"""
 
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
+        if self.first_start:
             self.first_start = False
             self.dlg = RenderDialog()
 
-        # show the dialog
+
         self.dlg.show()
-        # Run the dialog event loop
+
         result = self.dlg.exec_()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+
+
+        if not result:
+            return
+
+        from qgis.core import QgsRasterLayer, QgsProject
+        import numpy as np
+
+        # --- 1. Affichage info sur menu_raster ---
+        layer_id = self.dlg.menu_raster.currentData()
+        layer = QgsProject.instance().mapLayer(layer_id)
+
+        if isinstance(layer, QgsRasterLayer):
+            print(f"📦 Couche sélectionnée dans menu_raster : {layer.name()}")
+
+            provider = layer.dataProvider()
+            extent = layer.extent()
+            cols = layer.width()
+            rows = layer.height()
+
+            block = provider.block(1, extent, cols, rows)
+            if block:
+                array = np.array([
+                    [block.value(i, j) for i in range(block.width())]
+                    for j in range(block.height())
+                ])
+                print("✅ Array extrait depuis menu_raster")
+                print("Shape:", array.shape)
+                print("Min:", np.min(array), "Max:", np.max(array), "Moyenne:", np.mean(array))
+            else:
+                print("⚠️ Impossible de lire le bloc de la couche menu_raster")
+
+        # --- 2. Calcul NDVI si les deux bandes sont choisies ---
+        pir_id = self.dlg.PIR.currentData()
+        red_id = self.dlg.Rouge.currentData()
+
+        layer_pir = QgsProject.instance().mapLayer(pir_id)
+        layer_red = QgsProject.instance().mapLayer(red_id)
+
+        if not (isinstance(layer_pir, QgsRasterLayer) and isinstance(layer_red, QgsRasterLayer)):
+            print("⚠️ Couches PIR ou Rouge non valides — NDVI ignoré")
+            return
+
+        # Vérif dimensions
+        if (layer_pir.width() != layer_red.width() or
+            layer_pir.height() != layer_red.height() or
+            layer_pir.extent() != layer_red.extent()):
+            print("❌ Les couches PIR et Rouge doivent avoir la même taille et emprise.")
+            return
+
+        def raster_to_array(layer):
+            provider = layer.dataProvider()
+            extent = layer.extent()
+            cols = layer.width()
+            rows = layer.height()
+            block = provider.block(1, extent, cols, rows)
+            return np.array([
+                [block.value(i, j) for i in range(block.width())]
+                for j in range(block.height())
+            ])
+
+        array_pir = raster_to_array(layer_pir)
+        array_red = raster_to_array(layer_red)
+
+        np.seterr(divide='ignore', invalid='ignore')
+        ndvi = (array_pir - array_red) / (array_pir + array_red)
+        ndvi = np.nan_to_num(ndvi, nan=-1)
+
+        print("✅ NDVI calculé")
+
+        def save_ndvi_as_raster(ndvi_array, ref_layer):
+            from osgeo import gdal, osr
+            import tempfile, os
+
+            output_path = os.path.join(tempfile.gettempdir(), "/home/formation/Bureau/Pingouins-QGIS-Raster/ndvi_temp.tif")
+
+            rows, cols = ndvi_array.shape
+            extent = ref_layer.extent()
+            pixel_width = extent.width() / ref_layer.width()
+            pixel_height = extent.height() / ref_layer.height()
+            origin_x = extent.xMinimum()
+            origin_y = extent.yMaximum()
+
+            driver = gdal.GetDriverByName('GTiff')
+            dataset = driver.Create(output_path, cols, rows, 1, gdal.GDT_Float32)
+            dataset.SetGeoTransform((origin_x, pixel_width, 0, origin_y, 0, -pixel_height))
+
+            crs = ref_layer.crs()
+            srs = osr.SpatialReference()
+            srs.ImportFromWkt(crs.toWkt())
+            dataset.SetProjection(srs.ExportToWkt())
+
+            band = dataset.GetRasterBand(1)
+            band.WriteArray(ndvi_array)
+            band.SetNoDataValue(-1)
+            dataset.FlushCache()
+            dataset = None
+
+            return output_path
+
+        ndvi_path = save_ndvi_as_raster(ndvi, layer_red)
+        ndvi_layer = QgsRasterLayer(ndvi_path, "NDVI")
+        if ndvi_layer.isValid():
+            QgsProject.instance().addMapLayer(ndvi_layer)
+            print("✅ Raster NDVI affiché dans QGIS")
+        else:
+            print("❌ Le raster NDVI est invalide")
+
+
