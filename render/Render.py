@@ -32,7 +32,9 @@ from .Render_dialog import RenderDialog
 import os.path
 from qgis.core import QgsProject, QgsRasterLayer
 import numpy as np
-
+import ombrage as omb
+from osgeo import gdal, osr
+import tempfile, os
 class Render:
     """QGIS Plugin Implementation."""
 
@@ -262,8 +264,7 @@ class Render:
         print("✅ NDVI calculé")
 
         def save_ndvi_as_raster(ndvi_array, ref_layer):
-            from osgeo import gdal, osr
-            import tempfile, os
+
 
             output_path = os.path.join(tempfile.gettempdir(), "/home/formation/Bureau/Pingouins-QGIS-Raster/ndvi_temp.tif")
 
@@ -298,5 +299,20 @@ class Render:
             print("✅ Raster NDVI affiché dans QGIS")
         else:
             print("❌ Le raster NDVI est invalide")
+
+        def renderOmbrage(array):
+            shaderArray = omb.shadeRender(array,45,45) #set alti/azim later
+            # Now save the shaded array as a raster to a temporary location
+            output_path = save_ndvi_as_raster(shaderArray, layer_red)  # Reuse the save function
+
+            # Load the shaded array as a raster layer in QGIS
+            shader_layer = QgsRasterLayer("/home/formation/Bureau/Pingouins-QGIS-Raster/ombrage.tif", "Shaded Layer")
+
+            if shader_layer.isValid():
+                # Add the shaded raster layer to the project
+                QgsProject.instance().addMapLayer(shader_layer)
+                print("✅ Shaded raster displayed in QGIS")
+            else:
+                print("❌ The shaded raster is invalid")
 
 

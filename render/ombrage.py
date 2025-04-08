@@ -11,7 +11,7 @@ def shade_aspect(slope, aspect, alti, azim):
     return 255*((np.cos(90-alti)*np.cos(slope))+(np.sin(90-alti)*np.sin(slope)*np.cos(azim-aspect)))
 
 
-def shadeRender(array):
+def shadeRender(array, alti, azim):
     #array = np.load("test.npy")
     print(array.shape)
     print(np.mean(array))
@@ -32,9 +32,12 @@ def shadeRender(array):
     aspec = aspect(dz_dx,dz_dy)
     print(slop.shape)
     print(aspec.shape)
-    shade_aspec = shade_aspect(slop,aspec,45,45)
+    shade_aspec = shade_aspect(slop,aspec,alti, azim)
     print(shade_aspec.shape)
     plt.imshow(shade_aspec, cmap='Greys')  # You can change 'gray' to 'viridis' or other color maps
     plt.axis('off')  # Turn off axis labels
     plt.show()
     return shade_aspec
+
+array = np.load("test.npy")
+shadeRender(array,45,45)
