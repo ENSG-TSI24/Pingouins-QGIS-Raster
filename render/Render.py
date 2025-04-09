@@ -250,7 +250,9 @@ class Render:
 
             # --- 2. Ombrage sur cette couche ---
             def renderOmbrage(array, ref_layer):
-                shaderArray = omb.shadeRender(array, 45, 45)  # set alti/azim later
+                alti = self.dlg.spin_altitude.value()
+                azim = self.dlg.spin_azimuth.value()
+                shaderArray = omb.shadeRender(array, alti, azim)
                 
                 path = self.dlg.line_output_path_ombrage.text()
                 if not path:
