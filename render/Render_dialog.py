@@ -27,6 +27,7 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from qgis.core import QgsProject, QgsRasterLayer
+from qgis.PyQt.QtWidgets import QFileDialog
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -44,6 +45,8 @@ class RenderDialog(QtWidgets.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.remplir_menu_raster()
+        self.btn_browse_ombrage.clicked.connect(self.select_ombrage_path)
+        self.btn_browse_ndvi.clicked.connect(self.select_ndvi_path)
 
     
     def remplir_menu_raster(self):
@@ -62,3 +65,16 @@ class RenderDialog(QtWidgets.QDialog, FORM_CLASS):
             self.PIR.addItem(couche.name(), couche.id())
             self.Rouge.addItem(couche.name(), couche.id())
 
+    def select_ombrage_path(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Chemin pour l’ombrage", "", "GeoTIFF (*.tif)"
+        )
+        if path:
+            self.line_output_path_ombrage.setText(path)
+
+    def select_ndvi_path(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Chemin pour le NDVI", "", "GeoTIFF (*.tif)"
+        )
+        if path:
+            self.line_output_path_ndvi.setText(path)

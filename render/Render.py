@@ -251,7 +251,12 @@ class Render:
             # --- 2. Ombrage sur cette couche ---
             def renderOmbrage(array, ref_layer):
                 shaderArray = omb.shadeRender(array, 45, 45)  # set alti/azim later
-                path = "/home/formation/Bureau/Pingouins-QGIS-Raster/ombrage.tif"
+                
+                path = self.dlg.line_output_path_ombrage.text()
+                if not path:
+                    print("❗ Aucun chemin ombrage défini — opération annulée.")
+                    return
+
                 save_array_as_raster(shaderArray, ref_layer, path)
 
                 shader_layer = QgsRasterLayer(path, "Ombrage")
@@ -294,7 +299,11 @@ class Render:
 
         print("✅ NDVI calculé")
 
-        path_ndvi = "/home/formation/Bureau/Pingouins-QGIS-Raster/ndvi_temp.tif"
+        path_ndvi = self.dlg.line_output_path_ndvi.text()
+        if not path_ndvi:
+            print("❗ Aucun chemin NDVI défini — opération annulée.")
+            return
+
         save_array_as_raster(ndvi, layer_red, path_ndvi)
 
         ndvi_layer = QgsRasterLayer(path_ndvi, "NDVI")
@@ -303,6 +312,3 @@ class Render:
             print("✅ NDVI affiché dans QGIS")
         else:
             print("❌ Le raster NDVI est invalide")
-
-            
-
