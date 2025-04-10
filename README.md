@@ -29,7 +29,7 @@ Deux méthodes possibles :
 
 #### a. Cloner depuis GitHub
 
-```bash
+
 git clone https://github.com/ENSG-TSI24/Pingouins-QGIS-Raster.git
 
 #### b. Télécharger l'archive ZIP
