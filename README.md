@@ -34,21 +34,21 @@ git clone https://github.com/ENSG-TSI24/Pingouins-QGIS-Raster.git
 
 #### b. Télécharger l'archive ZIP
 
-    Télécharger ZIP
+Télécharger ZIP
 
-    Extraire le dossier sur votre machine
+Extraire le dossier sur votre machine
 
 ### 🗂️ 2. Installer dans QGIS
 
-    Ouvrir QGIS
+Ouvrir QGIS
 
-    Aller dans Extensions > Installer/Gérer les extensions
+Aller dans Extensions > Installer/Gérer les extensions
 
-    Cliquer sur l’onglet Installer depuis un fichier ZIP
+Cliquer sur l’onglet Installer depuis un fichier ZIP
 
-    Sélectionner le fichier ZIP ou le dossier du plugin (render)
+Sélectionner le fichier ZIP ou le dossier du plugin (render)
 
-    Valider — le plugin apparaît alors dans le menu Extensions sous "Nex Render Raster teledetection"
+Valider — le plugin apparaît alors dans le menu Extensions sous "Nex Render Raster teledetection"
 
 ##  Installation spécifique par système
 
@@ -60,29 +60,29 @@ Puis suivez l’installation depuis le ZIP ci-dessus.
 
 ### 🪟 Windows
 
-    Télécharger QGIS 3.40 (version "long term") depuis qgis.org
+Télécharger QGIS 3.40 (version "long term") depuis qgis.org
 
-    Les dépendances sont incluses avec l'installateur
+Les dépendances sont incluses avec l'installateur
 
-    Lancer QGIS et suivre l’installation du plugin comme décrit ci-dessus
+Lancer QGIS et suivre l’installation du plugin comme décrit ci-dessus
 
 ### 🍎 macOS
 
-    Installer QGIS 3.40 depuis https://qgis.org
+Installer QGIS 3.40 depuis https://qgis.org
 
-    Vérifier que Python et GDAL sont bien configurés via le QGIS terminal intégré
+Vérifier que Python et GDAL sont bien configurés via le QGIS terminal intégré
 
-    Ensuite, installer le plugin comme décrit
+Ensuite, installer le plugin comme décrit
 
 ## 🧪 Exemple d'utilisation
 
-    Charger deux images raster correspondant à la bande rouge et infrarouge proche
+Charger deux images raster correspondant à la bande rouge et infrarouge proche
 
-    Sélectionner-les dans l'interface du plugin
+Sélectionner-les dans l'interface du plugin
 
-    Lancer le calcul du NDVI
+Lancer le calcul du NDVI
 
-    Afficher un ombrage à partir d’un raster unique
+Afficher un ombrage à partir d’un raster unique
 
 ## 🤝 Auteurs
 
