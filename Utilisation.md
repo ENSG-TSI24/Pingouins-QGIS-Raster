@@ -128,3 +128,8 @@ Les fichiers NDVI et Hillshade sont **enregistrés manuellement** selon les chem
 
 ---
 
+## 🎬 Démo du plugin Render
+
+👉 [Voir la vidéo de démonstration](video_demo_Raster.mp4)
+
+
